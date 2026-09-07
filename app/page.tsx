@@ -4,18 +4,9 @@ import { useState } from 'react';
 import ISTMap from '@/components/ISTMap';
 
 export default function Home() {
-  const [activeBuilding, setActiveBuilding] = useState<string | null>(null);
+  const [activeBuilding, setActiveBuilding] = useState("");
 
-  console.log('Current activeBuilding state:', activeBuilding);
-  // Function for testing
-  const handleTestHighlight = () => {
-    console.log('Test highlight button clicked');
-    if (activeBuilding === '2448131361024') {
-      setActiveBuilding(null);
-    } else {
-      setActiveBuilding('2448131361024');
-    }
-  };
+  console.log('Current text:', activeBuilding);
 
   return (
     
@@ -26,16 +17,7 @@ export default function Home() {
         
         <div className="p-6 bg-slate-50 border border-slate-100 rounded-xl mb-6">
           <h2 className="text-lg font-semibold text-slate-700 mb-2">Development Controls</h2>
-          <button 
-            onClick={handleTestHighlight}
-            className={`px-4 py-2 text-white rounded-md transition-colors w-full ${
-              activeBuilding === '2448131361024' 
-                ? 'bg-red-500 hover:bg-red-600' 
-                : 'bg-blue-600 hover:bg-blue-800 active:bg-blue-700'
-            }`}
-          >
-            {activeBuilding === '2448131361024' ? 'Clear Highlight' : 'Test Highlight Civil'}
-          </button>
+          <input value={activeBuilding} onChange={e => setActiveBuilding(e.target.value)}/>
         </div>
 
         <div className="flex-1 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-xl">

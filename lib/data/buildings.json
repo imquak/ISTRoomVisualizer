@@ -1,0 +1,222 @@
+{
+  "type" : "CAMPUS",
+  "id" : "2448131360897",
+  "name" : "Alameda",
+  "containedSpaces" : [ {
+    "type" : "BUILDING",
+    "id" : "2448131371435",
+    "name" : "Infantário",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131384238",
+    "name" : "Pavilhão da Associação dos  Estudantes",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361155",
+    "name" : "Pavilhão de Mecânica III",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361150",
+    "name" : "Pavilhão de Mecânica IV",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "ROOM",
+    "id" : "565398084780068",
+    "name" : "Técnico Innovation Center",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361165",
+    "name" : "Pavilhão de Mecânica I",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361139",
+    "name" : "Edifício de Minas",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131377838",
+    "name" : "Secção de Folhas",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361176",
+    "name" : "Pavilhão do Jardim Norte",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361074",
+    "name" : "Torre Sul",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361042",
+    "name" : "Edifício de Civil",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361129",
+    "name" : "Pavilhão de Informática III",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361133",
+    "name" : "Pavilhão de Informática I",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361069",
+    "name" : "Pavilhão de Acção Social",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361119",
+    "name" : "Edifício de Matemática",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361109",
+    "name" : "Pavilhão de Química",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361035",
+    "name" : "Complexo Interdisciplinar",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361060",
+    "name" : "Pavilhão Central",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361024",
+    "name" : "Pavilhão de Electricidade",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361161",
+    "name" : "Pavilhão de Mecânica II",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361175",
+    "name" : "Pavilhão do Jardim Sul",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361051",
+    "name" : "Edifício de Física",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361173",
+    "name" : "Pavilhão de Informática II",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  }, {
+    "type" : "BUILDING",
+    "id" : "2448131361091",
+    "name" : "Torre Norte",
+    "topLevelSpace" : {
+      "type" : "CAMPUS",
+      "id" : "2448131360897",
+      "name" : "Alameda"
+    }
+  } ]
+}
