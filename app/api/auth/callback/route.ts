@@ -16,8 +16,7 @@ export async function GET(request: Request) {
       body: new URLSearchParams({
         client_id: process.env.NEXT_PUBLIC_FENIX_CLIENT_ID!,
         client_secret: process.env.FENIX_CLIENT_SECRET!,
-        // Dynamically uses the current origin (localhost or production domain)
-        redirect_uri: `${origin}/api/auth/callback`,
+        redirect_uri: `http://194.210.225.38:3000/api/auth/callback`,
         code,
         grant_type: 'authorization_code',
       }),
