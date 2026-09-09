@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IST Room Visualizer
 
-## Getting Started
+O IST Room Visualizer é uma aplicação web que facilita a localização das salas do Instituto Superior Técnico (por agora apenas o campus de Alameda). Pode aceder a uma versão já hosted na vercel com todas as funcionalidades disponíveis.
 
-First, run the development server:
+**[Aceder à versão live aqui](https://ist-room-visualizer.vercel.app/)**
 
+## Funcionalidades
+* **Mapa Interativo do Campus:** Edifícios destacados com base na sala ou aula selecionada.
+* **Integração com o Fenix:** Entra com a tua conta do Fenix e vê as salas das tuas próximas aulas.
+* **Pesquisa de salas:** Pode também pesquisar por sala na barra de pesquisa.
+
+## Pré-requisitos para self-hosting
+* Node.js (v18 ou superior)
+* `npm`, `yarn` ou `pnpm`
+* Uma Aplicação de Desenvolvedor no Fénix (para as credenciais OAuth)
+
+## Como Correr Localmente no PC
+
+**1. Instalar dependências**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install -g pnpm
+git clone https://github.com/imquak/ISTRoomVisualizer
+cd ISTRoomVisualizer
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**2. Configurar Variáveis de Ambiente**
+* Para ativar o login do Fénix, registe uma nova aplicação no Portal do Fénix (Pessoal > Aplicações > Gerir Aplicações). Garante que o Redirect Url está definido exatamente como http://localhost:3000/api/auth/callback.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Crie um ficheiro .env.local na raiz do projeto:
+```bash
+NEXT_PUBLIC_FENIX_CLIENT_ID="<O_TEU_CLIENT_ID>"
+FENIX_CLIENT_SECRET="<O_TEU_CLIENT_SECRET>"
+NEXT_PUBLIC_FENIX_REDIRECT_URI="http://localhost:3000/api/auth/callback"
+```
+**3. Iniciar o servidor**
+```bash
+pnpm dev
+```
+Abra http://localhost:3000 no seu browser para ver o resultado.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+** Scripts de Dados (Opcional) **
 
-## Learn More
+O repositório já inclui um data.json pré-preenchido e plantas das salas na pasta public. Caso precise de atualizar os dados do campus a partir da API do Fenix no futuro, pode correr os scripts incluídos:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Atualiza a lista principal de salas e plantas dos edifícios
+npx tsx scripts/fetchbuildings.ts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Descarrega as plantas individuais que estejam em falta
+npx tsx scripts/fetchRoomBlueprints.ts
+```
