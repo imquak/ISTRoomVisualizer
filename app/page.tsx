@@ -95,17 +95,15 @@ export default function Home() {
 
   return (
     <main className="flex flex-col-reverse md:flex-row h-[100dvh] w-full bg-slate-50 text-slate-900 overflow-hidden">
-      
-      {/* Sidebar: Search & Schedule (Bottom 60% on mobile, Left 1/3 on desktop) */}
+
       <section className="w-full h-[60dvh] md:h-full md:w-1/3 p-3 md:p-8 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:shadow-sm z-20 flex flex-col overflow-hidden border-t md:border-t-0 md:border-r border-slate-200">
         
-        <h1 className="hidden md:block text-3xl font-bold mb-6 text-slate-800">Find a Room</h1>
+        <h1 className="hidden md:block text-3xl font-bold mb-6 text-slate-800">IST Room Visualizer</h1>
         
-        {/* Search Bar */}
         <div className="relative mb-3 md:mb-6 shrink-0">
           <input 
             type="text"
-            placeholder="Search e.g., 'V1.12' or 'Amphitheater'..."
+            placeholder="Pesquisa, por exemplo: V1.12 ou QA02.4"
             className="w-full p-2.5 md:p-3 pl-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00529c] focus:outline-none text-sm md:text-base"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
@@ -126,7 +124,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Selected Room Card */}
         {selectedRoom && (
           <div className="mb-3 md:mb-6 shrink-0 p-3 md:p-4 bg-blue-50 border border-blue-100 rounded-xl flex justify-between items-center">
             <div className="overflow-hidden pr-2">
@@ -143,25 +140,24 @@ export default function Home() {
                 <svg className="w-5 h-5 md:w-6 md:h-6 text-[#00529c]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
-                <span className="text-[8px] md:text-[10px] font-bold text-[#00529c] mt-1 uppercase tracking-wider">Blueprint</span>
+                <span className="text-[8px] md:text-[10px] font-bold text-[#00529c] mt-1 uppercase tracking-wider">Localizar a sala</span>
               </button>
             )}
           </div>
         )}
 
-        {/* Schedule List */}
         <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl overflow-y-auto relative flex flex-col">
           {!isAuthenticated ? (
             <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-6">
-              <p className="text-slate-500 mb-4 text-xs md:text-sm">Login with Fenix to view your calendar and locate your upcoming classes.</p>
+              <p className="text-slate-500 mb-4 text-xs md:text-sm">Faz login com o Fenix para veres o teu horário.</p>
               <button onClick={handleFenixLogin} className="px-4 md:px-5 py-2 md:py-2.5 bg-[#00529c] text-white rounded-lg hover:bg-[#003d7a] transition-colors text-sm font-medium">
-                Connect Fenix
+                Login com o Fenix
               </button>
             </div>
           ) : (
             <div className="flex flex-col p-3 md:p-4">
               <h3 className="font-bold text-sm md:text-lg text-slate-800 mb-2 md:mb-4 sticky top-0 bg-slate-50 py-2 z-10 border-b border-slate-200">
-                Upcoming Schedule
+                O teu horário
               </h3>
               
               {Object.keys(groupedSchedule).length > 0 ? (
@@ -217,22 +213,19 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Right Section / Top Section: Campus Map (Top 40% on mobile, Right 2/3 on desktop) */}
       <section className="w-full h-[40dvh] md:h-full md:w-2/3 p-2 md:p-8 bg-slate-100 relative z-10 flex items-center justify-center">
-        {/* The class [&>svg]:... forces the ISTMap SVG to strictly obey its parent container bounds, preventing cutoff */}
         <div className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:max-h-full [&>svg]:object-contain">
           <ISTMap activeBuildingId={selectedRoom?.buildingId || null} />
         </div>
       </section>
 
-      {/* Blueprint Modal Overlay */}
       {isBlueprintModalOpen && blueprintUrl && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 md:p-12">
           <div className="bg-white w-full h-full md:max-w-6xl md:h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
             
             <div className="flex justify-between items-center px-4 md:px-6 py-3 md:py-4 border-b border-slate-200 bg-slate-50 shrink-0">
               <div className="overflow-hidden pr-4">
-                <h3 className="text-base md:text-xl font-bold text-slate-800 truncate">{selectedRoom?.name} Blueprint</h3>
+                <h3 className="text-base md:text-xl font-bold text-slate-800 truncate">{selectedRoom?.name}</h3>
                 <p className="text-xs md:text-sm text-slate-500 truncate">{selectedRoom?.buildingName} - Piso {selectedRoom?.floorName}</p>
               </div>
               <button 
@@ -247,10 +240,9 @@ export default function Home() {
             </div>
 
             <div className="flex-1 bg-slate-200 p-2 md:p-8 flex items-center justify-center overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={blueprintUrl}
-                alt={`Blueprint for ${selectedRoom?.name}`}
+                alt={`${selectedRoom?.name}`}
                 className="w-full h-full object-contain bg-white shadow-sm rounded-lg"
               />
             </div>
