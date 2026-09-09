@@ -39,7 +39,7 @@ pnpm dev
 ```
 Abra http://localhost:3000 no seu browser para ver o resultado.
 
-** Scripts de Dados (Opcional) **
+**Scripts de Dados (Opcional)**
 
 O repositório já inclui um data.json pré-preenchido e plantas das salas na pasta public. Caso precise de atualizar os dados do campus a partir da API do Fenix no futuro, pode correr os scripts incluídos:
 
