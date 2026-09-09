@@ -2,7 +2,7 @@
 
 O IST Room Visualizer é uma aplicação web que facilita a localização das salas do Instituto Superior Técnico (por agora apenas o campus de Alameda). Pode aceder a uma versão já hosted na vercel com todas as funcionalidades disponíveis.
 
-**[Aceder à versão live aqui](https://ist-room-visualizer.vercel.app/)**
+**[Aceda à versão live aqui](https://ist-room-visualizer.vercel.app/)**
 
 ## Funcionalidades
 * **Mapa Interativo do Campus:** Edifícios destacados com base na sala ou aula selecionada.
@@ -25,7 +25,7 @@ pnpm install
 ```
 
 **2. Configurar Variáveis de Ambiente**
-* Para ativar o login do Fénix, registe uma nova aplicação no Portal do Fénix (Pessoal > Aplicações > Gerir Aplicações). Garante que o Redirect Url está definido exatamente como http://localhost:3000/api/auth/callback.
+* Para ativar o login do Fénix, registe uma nova aplicação no Portal do Fénix (Pessoal > Aplicações > Gerir Aplicações). Garanta que o Redirect Url está definido exatamente como http://localhost:3000/api/auth/callback.
 
 Crie um ficheiro .env.local na raiz do projeto:
 ```bash
