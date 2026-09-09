@@ -164,7 +164,7 @@ export default function Home() {
                 Object.entries(groupedSchedule).map(([date, sessions]) => (
                   <div key={date} className="mb-4 md:mb-6">
                     <h4 className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 md:mb-3 pl-2 border-l-2 border-[#00529c]">
-                      {new Date(parseFenixDate(sessions[0].classPeriod.start)).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}
+                      {new Date(parseFenixDate(sessions[0].classPeriod.start)).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}
                     </h4>
                     
                     <div className="flex flex-col gap-2 md:gap-3">
@@ -206,7 +206,7 @@ export default function Home() {
                   </div>
                 ))
               ) : (
-                <p className="text-xs md:text-sm text-slate-500 text-center mt-6">No upcoming events found.</p>
+                <p className="text-xs md:text-sm text-slate-500 text-center mt-6">Nenhuma aula encontrada.</p>
               )}
             </div>
           )}
