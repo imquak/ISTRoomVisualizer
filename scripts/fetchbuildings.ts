@@ -5,7 +5,7 @@ const ALAMEDA_CAMPUS_ID = '2448131360897';
 const FENIX_API = 'https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces';
 const OUTPUT_JSON = path.join(process.cwd(), 'lib/data/data.json');
 const BLUEPRINTS_DIR = path.join(process.cwd(), 'public/blueprints');
-const DELAY_MS = 250; // Polite delay 
+const DELAY_MS = 250;
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -51,23 +51,19 @@ async function downloadBlueprint(blueprintUrl: string, spaceId: string): Promise
   }
 }
 
-// Universal recursive crawler
 async function crawlSpace(spaceId: string, context: SpaceContext) {
   const spaceData = await fetchSpace(spaceId);
   if (!spaceData) return;
 
   const nextContext: SpaceContext = { ...context };
 
-  // Lock in the Building
   if (spaceData.type === 'BUILDING') {
     nextContext.buildingId = spaceData.id;
     nextContext.buildingName = spaceData.name;
-    // Reset floor context for new buildings
     nextContext.floorId = undefined;
     nextContext.floorName = undefined;
     nextContext.floorBlueprintUrl = undefined;
   } 
-  // Lock in the FIRST Floor encountered in this branch
   else if (spaceData.type === 'FLOOR' && !context.floorId) {
     nextContext.floorId = spaceData.id;
     nextContext.floorName = spaceData.name;
@@ -80,7 +76,6 @@ async function crawlSpace(spaceId: string, context: SpaceContext) {
       }
     }
   } 
-  // Extract Room using accumulated context
   else if (spaceData.type === 'ROOM') {
     let roomBlueprintUrl = null;
     if (spaceData.blueprintUrl) {
@@ -93,7 +88,6 @@ async function crawlSpace(spaceId: string, context: SpaceContext) {
       name: spaceData.name,
       buildingId: nextContext.buildingId || "Unknown",
       buildingName: nextContext.buildingName || "Unknown",
-      // If a room exists without a floor, default to "Unknown"
       floorId: nextContext.floorId || "Unknown", 
       floorName: nextContext.floorName || "Unknown",
       floorBlueprintUrl: nextContext.floorBlueprintUrl || null,
@@ -102,10 +96,9 @@ async function crawlSpace(spaceId: string, context: SpaceContext) {
     
     roomCount++;
     process.stdout.write(`\rCrawled ${roomCount} rooms...`);
-    return; // Rooms are leaf nodes, stop descending here
+    return;
   }
 
-  // Recursively process any child spaces (Wings, Corridors, Sub-floors, etc.)
   if (spaceData.containedSpaces && spaceData.containedSpaces.length > 0) {
     for (const child of spaceData.containedSpaces) {
       await crawlSpace(child.id, nextContext);
@@ -124,7 +117,6 @@ async function fetchRoomsAndBlueprints() {
 
     console.log(`Discovered top-level structures. Starting universal deep crawl...\n`);
 
-    // Start recursive crawl for every top level item in the Campus
     for (const buildingRef of campusData.containedSpaces) {
       console.log(`\n🏢 Entering Structure: ${buildingRef.name}`);
       await crawlSpace(buildingRef.id, {});
@@ -132,7 +124,6 @@ async function fetchRoomsAndBlueprints() {
 
     await fs.writeFile(OUTPUT_JSON, JSON.stringify(roomsDatabase, null, 2));
     
-    console.log(`\n\n✅ Process Complete!`);
     console.log(`Rooms saved: ${roomCount}`);
     console.log(`Blueprints downloaded: ${blueprintCount}`);
     console.log(`Database generated at: ${OUTPUT_JSON}`);
