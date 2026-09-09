@@ -11,7 +11,7 @@ O IST Room Visualizer é uma aplicação web que facilita a localização das sa
 
 ## Pré-requisitos para self-hosting
 * Node.js (v18 ou superior)
-* `npm`, `yarn` ou `pnpm`
+* `pnpm`
 * Uma Aplicação de Desenvolvedor no Fénix (para as credenciais OAuth)
 
 ## Como Correr Localmente no PC
