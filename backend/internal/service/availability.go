@@ -182,6 +182,13 @@ func (svc *AvailabilityService) GetRoomStatus(roomID string, at time.Time) domai
 		}
 	}
 
+	blueprintURL := room.BlueprintURL
+	if strings.TrimSpace(blueprintURL) == "" && floorID != "" {
+		if floor, ok := svc.mem.GetSpace(floorID); ok {
+			blueprintURL = floor.BlueprintURL
+		}
+	}
+
 	return domain.RoomStatusResponse{
 		RoomID:          room.ID,
 		RoomName:        room.Name,
@@ -189,7 +196,7 @@ func (svc *AvailabilityService) GetRoomStatus(roomID string, at time.Time) domai
 		BuildingName:    buildingName,
 		FloorID:         floorID,
 		FloorName:       floorName,
-		BlueprintURL:    room.BlueprintURL,
+		BlueprintURL:    blueprintURL,
 		Status:          status,
 		CurrentEvent:    currentEvent,
 		NextEvent:       nextEvent,
@@ -230,6 +237,9 @@ func (svc *AvailabilityService) GetFreeRooms(campusFilter, buildingFilter string
 	for _, id := range roomIDs {
 		rs := svc.GetRoomStatus(id, at)
 		if strings.TrimSpace(rs.RoomName) == "" || strings.TrimSpace(rs.BuildingName) == "" || strings.EqualFold(strings.TrimSpace(rs.BuildingName), "unknown") {
+			continue
+		}
+		if strings.TrimSpace(rs.BlueprintURL) == "" {
 			continue
 		}
 		if rs.Status == domain.StatusOccupied {
@@ -398,6 +408,9 @@ func (svc *AvailabilityService) IntersectSchedules(req domain.IntersectRequest, 
 		if freeForAll {
 			rs := svc.GetRoomStatus(id, at)
 			if strings.TrimSpace(rs.RoomName) == "" || strings.TrimSpace(rs.BuildingName) == "" || strings.EqualFold(strings.TrimSpace(rs.BuildingName), "unknown") {
+				continue
+			}
+			if strings.TrimSpace(rs.BlueprintURL) == "" {
 				continue
 			}
 			freeRooms = append(freeRooms, rs)

@@ -51,17 +51,17 @@ export default function ISTMap({ activeBuildingId, onSelectBuilding, interactive
   const getBuildingStyle = (id: string) => {
     const isActive = activeBuildingId === id;
     const isHovered = hoveredBuildingId === id;
-    const base = "transition-all duration-200 cursor-pointer outline-none";
+    const base = "cursor-pointer outline-none";
     
     if (isActive) {
-      return `${base} fill-[#00529c] stroke-[#002f5a] stroke-2 drop-shadow-xl brightness-110`;
+      return `${base} fill-[#00529c] stroke-[#002f5a] stroke-[1.5]`;
     }
     
     if (isHovered && interactive) {
-      return `${base} fill-[#0284c7] stroke-[#0369a1] drop-shadow-lg scale-[1.01] origin-center`;
+      return `${base} transition-colors duration-150 fill-[#6ecbe0] stroke-[#0284c7]`;
     }
     
-    return `${base} fill-[#9DDDE4] stroke-[#8cbdd1] drop-shadow-sm hover:fill-[#38bdf8] hover:stroke-[#0284c7]`;
+    return `${base} transition-colors duration-150 fill-[#9DDDE4] stroke-[#8cbdd1]`;
   };
 
   const activeName = activeBuildingId ? BUILDING_NAMES[activeBuildingId] : null;
@@ -71,8 +71,8 @@ export default function ISTMap({ activeBuildingId, onSelectBuilding, interactive
     <div className="relative w-full h-full flex flex-col items-center justify-center">
       {/* Floating building tooltip/pill on map */}
       {(hoveredName || activeName) && (
-        <div className="absolute top-2 left-2 z-20 pointer-events-none bg-slate-900/90 text-white backdrop-blur-md px-3 py-1.5 rounded-lg shadow-lg border border-slate-700/50 text-xs flex items-center gap-2 transition-all animate-fade-in">
-          <span className={`w-2 h-2 rounded-full ${activeName ? 'bg-blue-400 animate-pulse' : 'bg-emerald-400'}`} />
+        <div className="absolute top-2 left-2 z-20 pointer-events-none bg-slate-900/90 text-white backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm border border-slate-700/50 text-xs flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${activeName ? 'bg-blue-400' : 'bg-emerald-400'}`} />
           <span className="font-semibold">{hoveredName || activeName}</span>
           {activeName && !hoveredName && (
             <span className="text-[10px] text-blue-200 bg-blue-900/60 px-1.5 py-0.5 rounded">Selecionado</span>

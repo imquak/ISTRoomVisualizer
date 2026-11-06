@@ -23,7 +23,7 @@ type Room = {
   roomBlueprintUrl: string | null;
 };
 
-// Filter out rooms without a valid name or building
+// Filter out rooms without a valid name, building, or blueprint
 const validRoomsList: Room[] = (Object.values(roomsData) as Room[]).filter(
   room =>
     room &&
@@ -33,7 +33,11 @@ const validRoomsList: Room[] = (Object.values(roomsData) as Room[]).filter(
     room.buildingName.trim() !== '' &&
     room.buildingName.toLowerCase() !== 'unknown' &&
     Boolean(room.buildingId) &&
-    room.buildingId !== 'Unknown'
+    room.buildingId !== 'Unknown' &&
+    Boolean(
+      (room.roomBlueprintUrl && room.roomBlueprintUrl.trim()) ||
+      (room.floorBlueprintUrl && room.floorBlueprintUrl.trim())
+    )
 );
 
 const parseFenixDate = (dateStr: string) => {
@@ -101,28 +105,56 @@ export default function Home() {
   };
 
   const [sliderMinutes, setSliderMinutes] = useState<number>(getCurrentClampedMinutes);
+  const [debouncedMinutes, setDebouncedMinutes] = useState<number>(getCurrentClampedMinutes);
   const [isLiveNow, setIsLiveNow] = useState(true);
   const [minDuration, setMinDuration] = useState<number>(30); // minutes
 
-  const selectedAt = useMemo(() => {
-    const d = new Date();
-    d.setHours(Math.floor(sliderMinutes / 60), sliderMinutes % 60, 0, 0);
-    return d;
+  // Debounce the slider to prevent lagging from frequent network/filtering queries
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedMinutes(sliderMinutes);
+    }, 150);
+    return () => clearTimeout(timer);
   }, [sliderMinutes]);
 
+  const selectedAt = useMemo(() => {
+    const d = new Date();
+    d.setHours(Math.floor(debouncedMinutes / 60), debouncedMinutes % 60, 0, 0);
+    return d;
+  }, [debouncedMinutes]);
+
   const handleSetNow = () => {
-    setSliderMinutes(getCurrentClampedMinutes());
+    const nowMins = getCurrentClampedMinutes();
+    setSliderMinutes(nowMins);
+    setDebouncedMinutes(nowMins);
     setIsLiveNow(true);
   };
 
-  const handleAdjustMinutes = (delta: number) => {
-    setSliderMinutes(prev => Math.max(480, Math.min(1260, prev + delta)));
-    setIsLiveNow(false);
+  // Position calculations for the mini green duration bar on the time track (08:00 - 21:00 = 780 mins)
+  const startPercent = Math.max(0, Math.min(100, ((sliderMinutes - 480) / 780) * 100));
+  const durationPercent = Math.min(100 - startPercent, (minDuration / 780) * 100);
+
+  const formatDurationHours = (mins?: number): string => {
+    if (!mins || mins <= 0) return 'Livre';
+    const h = mins / 60;
+    if (mins % 60 === 0) {
+      return `${h}h livre`;
+    }
+    if (mins % 30 === 0) {
+      return `${h}h livre`;
+    }
+    return `${h.toFixed(1).replace('.0', '')}h livre`;
   };
 
-  const handleSetSpecificTime = (hour: number, minute: number = 0) => {
-    setSliderMinutes(hour * 60 + minute);
-    setIsLiveNow(false);
+  const formatDuration = (mins: number): string => {
+    const h = mins / 60;
+    if (mins % 60 === 0) {
+      return `${h}h`;
+    }
+    if (mins % 30 === 0) {
+      return `${h}h`;
+    }
+    return `${h.toFixed(1).replace('.0', '')}h`;
   };
 
   const sliderTimeFormatted = useMemo(() => {
@@ -130,6 +162,13 @@ export default function Home() {
     const m = sliderMinutes % 60;
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
   }, [sliderMinutes]);
+
+  const endTimeFormatted = useMemo(() => {
+    const totalMins = sliderMinutes + minDuration;
+    const h = Math.floor(totalMins / 60);
+    const m = totalMins % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  }, [sliderMinutes, minDuration]);
 
   // ── Free Rooms List ─────────────────────────────────────────────────────────
   const [freeRooms, setFreeRooms] = useState<RoomStatus[]>([]);
@@ -284,6 +323,15 @@ export default function Home() {
           item.floorName.toLowerCase().includes(q)
       );
     }
+
+    // Filter out rooms that do not have a blueprint
+    list = list.filter(item => {
+      const bp =
+        item.roomObj?.roomBlueprintUrl ||
+        item.roomObj?.floorBlueprintUrl ||
+        item.rawStatus?.blueprintUrl;
+      return Boolean(bp && bp.trim() !== '');
+    });
 
     return list;
   }, [backendOnline, freeRooms, activeBuildingId, finderFilterQuery]);
@@ -688,42 +736,50 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Improved Time Selection Card */}
-            <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col gap-3">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-700">Horário pretendido:</span>
-                  <span className="text-sm md:text-base font-black font-mono text-[#00529c] bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200">
-                    {sliderTimeFormatted}
-                  </span>
-                  {isLiveNow && (
-                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
-                      Agora
+            {/* Time & Duration Selection Card */}
+            <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col gap-3.5">
+              {/* Time header & Visual Slider with Mini Green Duration Bar */}
+              <div className="flex flex-col gap-1.5">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-700">Horário:</span>
+                    <span className="text-sm font-black font-mono text-[#00529c] bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200">
+                      {sliderTimeFormatted}
                     </span>
-                  )}
+                    <span className="text-xs text-slate-500 font-medium">
+                      → {endTimeFormatted}
+                    </span>
+                    {isLiveNow && (
+                      <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                        Agora
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSetNow}
+                    className="text-xs font-bold text-[#00529c] hover:bg-blue-50 px-2 py-1 rounded-lg border border-blue-200 transition-colors"
+                  >
+                    Repor Agora
+                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleSetNow}
-                  className="text-xs font-bold text-[#00529c] hover:bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200 transition-colors"
-                >
-                  Repor Agora
-                </button>
-              </div>
+                {/* Custom Track with Mini Green Bar representing Duration */}
+                <div className="relative w-full h-7 flex items-center select-none my-0.5">
+                  {/* Background Track */}
+                  <div className="absolute left-0 right-0 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    {/* Mini Green Bar representing the duration window */}
+                    <div
+                      className="absolute top-0 bottom-0 bg-emerald-500 rounded-full transition-all duration-75"
+                      style={{
+                        left: `${startPercent}%`,
+                        width: `${durationPercent}%`,
+                      }}
+                    />
+                  </div>
 
-              {/* Time Stepper & Slider */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleAdjustMinutes(-15)}
-                  className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center shrink-0 border border-slate-300 text-sm transition-all"
-                  aria-label="Menos 15 minutos"
-                >
-                  -15m
-                </button>
-
-                <div className="flex-1">
+                  {/* Overlaid Range Slider Input */}
                   <input
                     type="range"
                     min={480}
@@ -734,84 +790,57 @@ export default function Home() {
                       setSliderMinutes(Number(e.target.value));
                       setIsLiveNow(false);
                     }}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                    className="absolute w-full h-7 opacity-0 cursor-ew-resize z-20"
                   />
-                  <div className="flex justify-between text-[10px] font-semibold text-slate-400 mt-1">
-                    <span>08:00</span>
-                    <span>11:00</span>
-                    <span>14:00</span>
-                    <span>17:00</span>
-                    <span>21:00</span>
+
+                  {/* Visible Thumb Handle */}
+                  <div
+                    className="absolute w-4 h-4 bg-white border-2 border-[#00529c] rounded-full shadow-md pointer-events-none -ml-2 transition-all duration-75 z-10 flex items-center justify-center"
+                    style={{ left: `${startPercent}%` }}
+                  >
+                    <div className="w-1.5 h-1.5 bg-[#00529c] rounded-full" />
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleAdjustMinutes(15)}
-                  className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center shrink-0 border border-slate-300 text-sm transition-all"
-                  aria-label="Mais 15 minutos"
-                >
-                  +15m
-                </button>
+                <div className="flex justify-between text-[10px] font-semibold text-slate-400">
+                  <span>08:00</span>
+                  <span>11:00</span>
+                  <span>14:00</span>
+                  <span>17:00</span>
+                  <span>21:00</span>
+                </div>
               </div>
 
-              {/* Quick Preset Buttons */}
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <button
-                  onClick={() => handleSetSpecificTime(10, 0)}
-                  className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition-colors"
-                >
-                  10:00
-                </button>
-                <button
-                  onClick={() => handleSetSpecificTime(12, 0)}
-                  className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition-colors"
-                >
-                  12:00
-                </button>
-                <button
-                  onClick={() => handleSetSpecificTime(14, 0)}
-                  className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition-colors"
-                >
-                  14:00
-                </button>
-                <button
-                  onClick={() => handleSetSpecificTime(16, 0)}
-                  className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition-colors"
-                >
-                  16:00
-                </button>
-                <button
-                  onClick={() => handleAdjustMinutes(60)}
-                  className="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-200 transition-colors"
-                >
-                  +1 hora
-                </button>
-                <button
-                  onClick={() => handleAdjustMinutes(120)}
-                  className="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-200 transition-colors"
-                >
-                  +2 horas
-                </button>
-              </div>
+              {/* Duration Selection (Buttons / Chips - NOT a slider!) */}
+              <div className="flex flex-col gap-1.5 border-t border-slate-100 pt-2.5">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-slate-700">Duração:</span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-xs" title="Representada pela barra verde no horário" />
+                  </div>
+                  <span className="text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                    {formatDuration(minDuration)}
+                  </span>
+                </div>
 
-              {/* Duration Filter Chips */}
-              <div className="flex items-center justify-between border-t border-slate-100 pt-2.5">
-                <span className="text-[11px] font-semibold text-slate-500">Duração mínima:</span>
-                <div className="flex gap-1">
-                  {[30, 60, 90, 120].map(mins => (
-                    <button
-                      key={mins}
-                      onClick={() => setMinDuration(mins)}
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
-                        minDuration === mins
-                          ? 'bg-slate-800 text-white shadow-xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-6 gap-1">
+                  {[30, 45, 60, 90, 120, 180].map(mins => {
+                    const isSelected = minDuration === mins;
+                    return (
+                      <button
+                        key={mins}
+                        type="button"
+                        onClick={() => setMinDuration(mins)}
+                        className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all text-center border ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                        }`}
+                      >
+                        {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -858,48 +887,57 @@ export default function Home() {
                   <div className="text-center p-8 text-slate-500">
                     <p className="font-semibold text-sm text-slate-700 mb-1">Nenhuma sala livre encontrada</p>
                     <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                      Tenta ajustar a duração mínima ({minDuration}m), alterar o horário ({sliderTimeFormatted}) ou selecionar outro edifício.
+                      Tenta ajustar a duração ({formatDuration(minDuration)}), alterar o horário ({sliderTimeFormatted}) ou selecionar outro edifício.
                     </p>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
                     {displayedFinderRooms.map(item => {
                       const isSelected = selectedRoom?.id === item.id;
+                      const itemBlueprintUrl =
+                        item.roomObj?.roomBlueprintUrl ||
+                        item.roomObj?.floorBlueprintUrl ||
+                        item.rawStatus?.blueprintUrl;
+
                       return (
                         <div
                           key={item.id}
                           onClick={() => handleSelectFreeRoomItem(item)}
-                          className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col gap-1.5 ${
+                          className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                             isSelected
                               ? 'bg-blue-50 border-[#00529c] shadow-sm'
                               : 'bg-white border-slate-200 hover:border-emerald-400 hover:shadow-xs'
                           }`}
                         >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-black text-sm text-slate-800 flex items-center gap-1.5">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-black text-sm md:text-base text-slate-800 truncate">
                                 {item.name}
-                                {isSelected && (
-                                  <span className="text-[9px] bg-[#00529c] text-white px-1.5 py-0.2 rounded font-bold">
-                                    Ativa
-                                  </span>
-                                )}
                               </p>
-                              <p className="text-xs text-slate-500">
-                                {item.buildingName} • Piso {item.floorName}
-                              </p>
+                              {isSelected && (
+                                <span className="text-[9px] bg-[#00529c] text-white px-1.5 py-0.5 rounded font-bold shrink-0">
+                                  Ativa
+                                </span>
+                              )}
                             </div>
+                            <p className="text-xs text-slate-500 truncate mt-0.5">
+                              {item.buildingName} • Piso {item.floorName}
+                            </p>
 
-                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                              {item.durationMinutes ? `${item.durationMinutes} min livres` : 'Livre'}
-                            </span>
+                            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 shrink-0">
+                                {formatDurationHours(item.durationMinutes)}
+                              </span>
+                              {item.nextEventText && (
+                                <span className="text-[10px] text-amber-700 truncate max-w-[200px]">
+                                  {item.nextEventText}
+                                </span>
+                              )}
+                            </div>
                           </div>
 
-                          {item.nextEventText && (
-                            <p className="text-[11px] text-amber-700 font-medium">{item.nextEventText}</p>
-                          )}
-
-                          <div className="flex justify-end pt-1 gap-2 border-t border-slate-100">
+                          {/* Blueprint button on each room like in the other tab */}
+                          {itemBlueprintUrl && (
                             <button
                               type="button"
                               onClick={e => {
@@ -907,14 +945,19 @@ export default function Home() {
                                 handleSelectFreeRoomItem(item);
                                 setIsBlueprintModalOpen(true);
                               }}
-                              className="text-[10px] font-bold text-[#00529c] hover:underline flex items-center gap-1"
+                              className="flex items-center gap-1.5 px-3 py-2 bg-[#00529c] text-white hover:bg-[#003d7a] rounded-xl text-xs font-bold shadow-sm transition-all shrink-0"
                             >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                                />
                               </svg>
-                              Localizar Planta
+                              <span>Planta</span>
                             </button>
-                          </div>
+                          )}
                         </div>
                       );
                     })}
