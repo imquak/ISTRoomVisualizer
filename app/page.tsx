@@ -405,22 +405,6 @@ export default function Home() {
                 Campus Alameda • IST Lisboa
               </p>
             </div>
-
-            {/* Backend connection pill */}
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  backendOnline === true
-                    ? 'bg-emerald-500'
-                    : backendOnline === false
-                    ? 'bg-amber-500'
-                    : 'bg-slate-400 animate-pulse'
-                }`}
-              />
-              <span className="text-slate-600 hidden sm:inline">
-                {backendOnline === true ? 'Go Engine Online' : 'Dados Locais'}
-              </span>
-            </div>
           </div>
 
           {/* Mode Switch Tabs */}
@@ -914,11 +898,6 @@ export default function Home() {
                               <p className="font-black text-sm md:text-base text-slate-800 truncate">
                                 {item.name}
                               </p>
-                              {isSelected && (
-                                <span className="text-[9px] bg-[#00529c] text-white px-1.5 py-0.5 rounded font-bold shrink-0">
-                                  Ativa
-                                </span>
-                              )}
                             </div>
                             <p className="text-xs text-slate-500 truncate mt-0.5">
                               {item.buildingName} • Piso {item.floorName}

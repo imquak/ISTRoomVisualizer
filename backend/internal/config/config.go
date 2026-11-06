@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
@@ -46,9 +47,14 @@ func Load() *Config {
 	if fenixBase == "" {
 		fenixBase = "https://fenix.tecnico.ulisboa.pt/api/fenix/v1"
 	}
-	corsOrigins := []string{"http://localhost:3000"}
+	corsOrigins := []string{"http://localhost:3000", "https://ist-room-visualizer.vercel.app"}
 	if v := os.Getenv("CORS_ORIGINS"); v != "" {
-		corsOrigins = append(corsOrigins, v)
+		for _, o := range strings.Split(v, ",") {
+			trimmed := strings.TrimSpace(o)
+			if trimmed != "" {
+				corsOrigins = append(corsOrigins, trimmed)
+			}
+		}
 	}
 	return &Config{
 		Port:         port,
