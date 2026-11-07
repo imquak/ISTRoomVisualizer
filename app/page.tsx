@@ -50,6 +50,55 @@ const parseFenixDate = (dateStr: string) => {
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
 
+const formatMinutes = (totalMins: number) => {
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
+// Deterministic hash function for local schedule simulation
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+// Typical IST lecture slots (in minutes from midnight)
+const STANDARD_SLOTS = [
+  { start: 480, end: 570 },   // 08:00 - 09:30
+  { start: 570, end: 660 },   // 09:30 - 11:00
+  { start: 660, end: 750 },   // 11:00 - 12:30
+  { start: 750, end: 840 },   // 12:30 - 14:00
+  { start: 840, end: 930 },   // 14:00 - 15:30
+  { start: 930, end: 1020 },  // 15:30 - 17:00
+  { start: 1020, end: 1110 }, // 17:00 - 18:30
+  { start: 1110, end: 1200 }, // 18:30 - 20:00
+];
+
+const SAMPLE_COURSES = [
+  'Cálculo I', 'Álgebra Linear', 'Física I', 'Programação',
+  'Compiladores', 'Sistemas Operativos', 'Inteligência Artificial',
+  'Bases de Dados', 'Redes de Computadores', 'Mecânica Quântica',
+  'Química Geral', 'Engenharia de Software', 'Estruturas de Dados'
+];
+
+function getRoomSimulatedEvents(roomId: string) {
+  const h = hashString(roomId);
+  const events: Array<{ start: number; end: number; course: string }> = [];
+  const numSlots = 2 + (h % 3);
+  for (let i = 0; i < STANDARD_SLOTS.length; i++) {
+    if ((h + i * 5) % 3 === 0 && events.length < numSlots) {
+      const slot = STANDARD_SLOTS[i];
+      const course = SAMPLE_COURSES[(h + i) % SAMPLE_COURSES.length];
+      events.push({ start: slot.start, end: slot.end, course });
+    }
+  }
+  return events;
+}
+
 export default function Home() {
   // ── Mode: 'normal' (previous view) | 'finder' (empty room finder) ───────────
   const [mode, setMode] = useState<'normal' | 'finder'>('normal');
@@ -98,77 +147,77 @@ export default function Home() {
 
   // ── Time Selection (Finder Mode) ────────────────────────────────────────────
   // Minutes offset from midnight (08:00 = 480, 21:00 = 1260)
-  const getCurrentClampedMinutes = () => {
+  // Default duration is 30m
+  const getCurrentClampedStartMinutes = () => {
     const now = new Date();
     const mins = now.getHours() * 60 + now.getMinutes();
-    return Math.max(480, Math.min(1260, mins));
+    const rounded = Math.round(mins / 5) * 5;
+    return Math.max(480, Math.min(1230, rounded));
   };
 
-  const [sliderMinutes, setSliderMinutes] = useState<number>(getCurrentClampedMinutes);
-  const [debouncedMinutes, setDebouncedMinutes] = useState<number>(getCurrentClampedMinutes);
-  const [isLiveNow, setIsLiveNow] = useState(true);
-  const [minDuration, setMinDuration] = useState<number>(30); // minutes
+  const [startMinutes, setStartMinutes] = useState<number>(getCurrentClampedStartMinutes);
+  const [endMinutes, setEndMinutes] = useState<number>(() => {
+    const s = getCurrentClampedStartMinutes();
+    return Math.min(1260, s + 30);
+  });
 
-  // Debounce the slider to prevent lagging from frequent network/filtering queries
+  const [debouncedStartMinutes, setDebouncedStartMinutes] = useState<number>(startMinutes);
+  const [debouncedEndMinutes, setDebouncedEndMinutes] = useState<number>(endMinutes);
+  const [isLiveNow, setIsLiveNow] = useState(true);
+  const [activeThumb, setActiveThumb] = useState<'start' | 'end'>('start');
+
+  // Debounce slider updates to keep dragging 100% fluid
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedMinutes(sliderMinutes);
-    }, 150);
+      setDebouncedStartMinutes(startMinutes);
+      setDebouncedEndMinutes(endMinutes);
+    }, 100);
     return () => clearTimeout(timer);
-  }, [sliderMinutes]);
+  }, [startMinutes, endMinutes]);
 
-  const selectedAt = useMemo(() => {
+  const durationMinutes = Math.max(5, debouncedEndMinutes - debouncedStartMinutes);
+
+  const selectedStart = useMemo(() => {
     const d = new Date();
-    d.setHours(Math.floor(debouncedMinutes / 60), debouncedMinutes % 60, 0, 0);
+    d.setHours(Math.floor(debouncedStartMinutes / 60), debouncedStartMinutes % 60, 0, 0);
     return d;
-  }, [debouncedMinutes]);
+  }, [debouncedStartMinutes]);
 
   const handleSetNow = () => {
-    const nowMins = getCurrentClampedMinutes();
-    setSliderMinutes(nowMins);
-    setDebouncedMinutes(nowMins);
+    const nowStart = getCurrentClampedStartMinutes();
+    const nowEnd = Math.min(1260, nowStart + 30);
+    setStartMinutes(nowStart);
+    setEndMinutes(nowEnd);
+    setDebouncedStartMinutes(nowStart);
+    setDebouncedEndMinutes(nowEnd);
     setIsLiveNow(true);
   };
 
-  // Position calculations for the mini green duration bar on the time track (08:00 - 21:00 = 780 mins)
-  const startPercent = Math.max(0, Math.min(100, ((sliderMinutes - 480) / 780) * 100));
-  const durationPercent = Math.min(100 - startPercent, (minDuration / 780) * 100);
+  // Timeline track position calculations (08:00 to 21:00 = 780 minutes)
+  const startPercent = Math.max(0, Math.min(100, ((startMinutes - 480) / 780) * 100));
+  const endPercent = Math.max(0, Math.min(100, ((endMinutes - 480) / 780) * 100));
+
+  const formatDuration = (mins: number): string => {
+    if (mins <= 0) return '0m';
+    const h = mins / 60;
+    if (mins % 60 === 0) return `${h}h`;
+    if (mins % 30 === 0) return `${h}h`;
+    const hours = Math.floor(mins / 60);
+    const rem = mins % 60;
+    if (hours === 0) return `${rem}m`;
+    return `${hours}h${rem}m`;
+  };
 
   const formatDurationHours = (mins?: number): string => {
     if (!mins || mins <= 0) return 'Livre';
     const h = mins / 60;
-    if (mins % 60 === 0) {
-      return `${h}h livre`;
-    }
-    if (mins % 30 === 0) {
-      return `${h}h livre`;
-    }
-    return `${h.toFixed(1).replace('.0', '')}h livre`;
+    if (mins % 60 === 0) return `${h}h livre`;
+    if (mins % 30 === 0) return `${h}h livre`;
+    const hours = Math.floor(mins / 60);
+    const rem = mins % 60;
+    if (hours === 0) return `${rem}m livre`;
+    return `${hours}h${rem}m livre`;
   };
-
-  const formatDuration = (mins: number): string => {
-    const h = mins / 60;
-    if (mins % 60 === 0) {
-      return `${h}h`;
-    }
-    if (mins % 30 === 0) {
-      return `${h}h`;
-    }
-    return `${h.toFixed(1).replace('.0', '')}h`;
-  };
-
-  const sliderTimeFormatted = useMemo(() => {
-    const h = Math.floor(sliderMinutes / 60);
-    const m = sliderMinutes % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-  }, [sliderMinutes]);
-
-  const endTimeFormatted = useMemo(() => {
-    const totalMins = sliderMinutes + minDuration;
-    const h = Math.floor(totalMins / 60);
-    const m = totalMins % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-  }, [sliderMinutes, minDuration]);
 
   // ── Free Rooms List ─────────────────────────────────────────────────────────
   const [freeRooms, setFreeRooms] = useState<RoomStatus[]>([]);
@@ -183,8 +232,8 @@ export default function Home() {
       setFreeRoomsLoading(true);
       getFreeRooms({
         buildingId: activeBuildingId || undefined,
-        minDuration,
-        at: selectedAt,
+        minDuration: durationMinutes,
+        at: selectedStart,
       })
         .then(rooms => {
           // Extra guard to filter rooms without valid names or buildings
@@ -201,7 +250,7 @@ export default function Home() {
         .catch(() => setFreeRooms([]))
         .finally(() => setFreeRoomsLoading(false));
     }
-  }, [mode, backendOnline, activeBuildingId, minDuration, selectedAt]);
+  }, [mode, backendOnline, activeBuildingId, durationMinutes, selectedStart]);
 
   // ── Floor State for Selected Room ───────────────────────────────────────────
   const [floorState, setFloorState] = useState<FloorState | null>(null);
@@ -209,10 +258,10 @@ export default function Home() {
 
   useEffect(() => {
     if (!selectedRoom?.floorId || !backendOnline) return;
-    getFloorState(selectedRoom.floorId, selectedAt)
+    getFloorState(selectedRoom.floorId, selectedStart)
       .then(setFloorState)
       .catch(() => setFloorState(null));
-  }, [selectedRoom, backendOnline, selectedAt]);
+  }, [selectedRoom, backendOnline, selectedStart]);
 
   // ── Normal Mode Search Autocomplete ─────────────────────────────────────────
   const searchResults = useMemo(() => {
@@ -262,7 +311,7 @@ export default function Home() {
   }, []);
 
   // ── Offline Fallback for Free Rooms ─────────────────────────────────────────
-  // If Go backend is offline or loading, we still show the valid rooms for the active building
+  // If Go backend is offline or loading, we compute availability dynamically from schedule & simulated slots
   const displayedFinderRooms = useMemo(() => {
     let list: Array<{
       id: string;
@@ -296,22 +345,69 @@ export default function Home() {
         };
       });
     } else {
-      // Local fallback: show valid rooms for the selected building (or all if none selected)
+      // Dynamic local computation: filter and calculate availability based on [debouncedStartMinutes, debouncedEndMinutes]
       const base = activeBuildingId
         ? validRoomsList.filter(r => r.buildingId === activeBuildingId)
-        : validRoomsList.slice(0, 50);
+        : validRoomsList;
 
-      list = base.map(r => ({
-        id: r.id,
-        name: r.name,
-        buildingName: r.buildingName,
-        buildingId: r.buildingId,
-        floorName: r.floorName,
-        status: 'FREE',
-        durationMinutes: 60,
-        nextEventText: undefined,
-        roomObj: r,
-      }));
+      const candidates: typeof list = [];
+
+      for (const r of base) {
+        // Base simulated schedule for this room
+        const simulated = getRoomSimulatedEvents(r.id);
+
+        // Check against personal Fénix schedule if user is authenticated
+        const personal = schedule
+          .filter(s => s.location?.[0]?.name === r.name)
+          .map(s => {
+            const [, tPart] = s.classPeriod.start.split(' ');
+            const [sh, sm] = (tPart || '00:00').split(':').map(Number);
+            const [, etPart] = s.classPeriod.end.split(' ');
+            const [eh, em] = (etPart || '00:00').split(':').map(Number);
+            return {
+              start: sh * 60 + sm,
+              end: eh * 60 + em,
+              course: s.course?.name || s.title || 'Aula Fénix',
+            };
+          });
+
+        const allEvents = [...simulated, ...personal].sort((a, b) => a.start - b.start);
+
+        // Check if room is occupied at any point during [debouncedStartMinutes, debouncedEndMinutes]
+        const isOccupied = allEvents.some(
+          ev => !(ev.end <= debouncedStartMinutes || ev.start >= debouncedEndMinutes)
+        );
+
+        if (isOccupied) {
+          continue; // Room is occupied during the requested interval
+        }
+
+        // Find next upcoming event starting at or after debouncedStartMinutes
+        const nextEvent = allEvents.find(ev => ev.start >= debouncedStartMinutes);
+        const freeUntilMins = nextEvent ? nextEvent.start : 1260;
+        const availableMins = Math.max(0, freeUntilMins - debouncedStartMinutes);
+
+        // Room must remain free for at least durationMinutes
+        if (availableMins < durationMinutes) {
+          continue;
+        }
+
+        candidates.push({
+          id: r.id,
+          name: r.name,
+          buildingName: r.buildingName,
+          buildingId: r.buildingId,
+          floorName: r.floorName,
+          status: 'FREE',
+          durationMinutes: availableMins,
+          nextEventText: nextEvent
+            ? `Ocupa às ${formatMinutes(nextEvent.start)} (${nextEvent.course})`
+            : undefined,
+          roomObj: r,
+        });
+      }
+
+      list = candidates;
     }
 
     if (finderFilterQuery.trim()) {
@@ -333,8 +429,11 @@ export default function Home() {
       return Boolean(bp && bp.trim() !== '');
     });
 
+    // Sort descending by duration available (longest free first)
+    list.sort((a, b) => (b.durationMinutes || 0) - (a.durationMinutes || 0));
+
     return list;
-  }, [backendOnline, freeRooms, activeBuildingId, finderFilterQuery]);
+  }, [backendOnline, freeRooms, activeBuildingId, finderFilterQuery, debouncedStartMinutes, debouncedEndMinutes, durationMinutes, schedule]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
   const handleSelectRoom = useCallback((room: Room) => {
@@ -721,110 +820,118 @@ export default function Home() {
             </div>
 
             {/* Time & Duration Selection Card */}
-            <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col gap-3.5">
-              {/* Time header & Visual Slider with Mini Green Duration Bar */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-700">Horário:</span>
-                    <span className="text-sm font-black font-mono text-[#00529c] bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200">
-                      {sliderTimeFormatted}
-                    </span>
-                    <span className="text-xs text-slate-500 font-medium">
-                      → {endTimeFormatted}
-                    </span>
-                    {isLiveNow && (
-                      <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
-                        Agora
-                      </span>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleSetNow}
-                    className="text-xs font-bold text-[#00529c] hover:bg-blue-50 px-2 py-1 rounded-lg border border-blue-200 transition-colors"
+            <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col gap-3">
+              {/* Header: Start time -> End time + Duration */}
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-bold text-slate-700">Horário:</span>
+                  <span
+                    className="text-xs font-black font-mono text-[#00529c] bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200 shadow-2xs"
+                    title="Hora de início"
                   >
-                    Repor Agora
-                  </button>
+                    {formatMinutes(startMinutes)}
+                  </span>
+                  <span className="text-xs text-slate-400 font-bold">→</span>
+                  <span
+                    className="text-xs font-black font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 shadow-2xs"
+                    title="Hora de fim"
+                  >
+                    {formatMinutes(endMinutes)}
+                  </span>
+                  <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                    {formatDuration(endMinutes - startMinutes)}
+                  </span>
+                  {isLiveNow && (
+                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                      Agora
+                    </span>
+                  )}
                 </div>
 
-                {/* Custom Track with Mini Green Bar representing Duration */}
-                <div className="relative w-full h-7 flex items-center select-none my-0.5">
+                <button
+                  type="button"
+                  onClick={handleSetNow}
+                  className="text-xs font-bold text-[#00529c] hover:bg-blue-50 px-2 py-1 rounded-lg border border-blue-200 transition-colors shrink-0"
+                >
+                  Repor Agora
+                </button>
+              </div>
+
+              {/* Dual Range Slider (Start & End Handles with Green Duration Bar) */}
+              <div className="flex flex-col gap-1">
+                <div className="relative w-full h-8 flex items-center select-none my-0.5">
                   {/* Background Track */}
-                  <div className="absolute left-0 right-0 h-2 bg-slate-200 rounded-full overflow-hidden">
-                    {/* Mini Green Bar representing the duration window */}
+                  <div className="absolute left-0 right-0 h-2 bg-slate-200 rounded-full overflow-hidden pointer-events-none">
+                    {/* Green Bar representing the duration between start and end */}
                     <div
-                      className="absolute top-0 bottom-0 bg-emerald-500 rounded-full transition-all duration-75"
+                      className="absolute top-0 bottom-0 bg-emerald-500 rounded-full pointer-events-none"
                       style={{
                         left: `${startPercent}%`,
-                        width: `${durationPercent}%`,
+                        width: `${Math.max(0, endPercent - startPercent)}%`,
                       }}
                     />
                   </div>
 
-                  {/* Overlaid Range Slider Input */}
+                  {/* Start Handle (Blue) */}
                   <input
                     type="range"
                     min={480}
                     max={1260}
                     step={5}
-                    value={sliderMinutes}
+                    value={startMinutes}
+                    onMouseDown={() => setActiveThumb('start')}
+                    onTouchStart={() => setActiveThumb('start')}
                     onChange={e => {
-                      setSliderMinutes(Number(e.target.value));
+                      const val = Number(e.target.value);
+                      setStartMinutes(Math.min(val, endMinutes - 5));
                       setIsLiveNow(false);
                     }}
-                    className="absolute w-full h-7 opacity-0 cursor-ew-resize z-20"
+                    aria-label="Hora de Início"
+                    className={`range-thumb-start absolute w-full h-8 appearance-none bg-transparent pointer-events-none ${
+                      activeThumb === 'start' ? 'z-30' : 'z-20'
+                    }`}
                   />
 
-                  {/* Visible Thumb Handle */}
-                  <div
-                    className="absolute w-4 h-4 bg-white border-2 border-[#00529c] rounded-full shadow-md pointer-events-none -ml-2 transition-all duration-75 z-10 flex items-center justify-center"
-                    style={{ left: `${startPercent}%` }}
-                  >
-                    <div className="w-1.5 h-1.5 bg-[#00529c] rounded-full" />
-                  </div>
+                  {/* End Handle (Emerald Green) */}
+                  <input
+                    type="range"
+                    min={480}
+                    max={1260}
+                    step={5}
+                    value={endMinutes}
+                    onMouseDown={() => setActiveThumb('end')}
+                    onTouchStart={() => setActiveThumb('end')}
+                    onChange={e => {
+                      const val = Number(e.target.value);
+                      setEndMinutes(Math.max(val, startMinutes + 5));
+                      setIsLiveNow(false);
+                    }}
+                    aria-label="Hora de Fim"
+                    className={`range-thumb-end absolute w-full h-8 appearance-none bg-transparent pointer-events-none ${
+                      activeThumb === 'end' ? 'z-30' : 'z-20'
+                    }`}
+                  />
                 </div>
 
-                <div className="flex justify-between text-[10px] font-semibold text-slate-400">
+                {/* Timeline scale and markers */}
+                <div className="flex justify-between text-[10px] font-semibold text-slate-400 px-0.5">
                   <span>08:00</span>
                   <span>11:00</span>
                   <span>14:00</span>
                   <span>17:00</span>
                   <span>21:00</span>
                 </div>
-              </div>
 
-              {/* Duration Selection (Buttons / Chips - NOT a slider!) */}
-              <div className="flex flex-col gap-1.5 border-t border-slate-100 pt-2.5">
-                <div className="flex justify-between items-center">
+                {/* Helper legend */}
+                <div className="flex items-center justify-between text-[10px] text-slate-500 mt-0.5 pt-1 border-t border-slate-100">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-slate-700">Duração:</span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-xs" title="Representada pela barra verde no horário" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#00529c] inline-block shadow-2xs" />
+                    <span className="font-medium">Início: {formatMinutes(startMinutes)}</span>
                   </div>
-                  <span className="text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                    {formatDuration(minDuration)}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-6 gap-1">
-                  {[30, 45, 60, 90, 120, 180].map(mins => {
-                    const isSelected = minDuration === mins;
-                    return (
-                      <button
-                        key={mins}
-                        type="button"
-                        onClick={() => setMinDuration(mins)}
-                        className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all text-center border ${
-                          isSelected
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
-                        }`}
-                      >
-                        {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
-                      </button>
-                    );
-                  })}
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block shadow-2xs" />
+                    <span className="font-medium">Fim: {formatMinutes(endMinutes)}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -871,7 +978,7 @@ export default function Home() {
                   <div className="text-center p-8 text-slate-500">
                     <p className="font-semibold text-sm text-slate-700 mb-1">Nenhuma sala livre encontrada</p>
                     <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                      Tenta ajustar a duração ({formatDuration(minDuration)}), alterar o horário ({sliderTimeFormatted}) ou selecionar outro edifício.
+                      Tenta ajustar a duração ({formatDuration(durationMinutes)}), alterar o horário ({formatMinutes(startMinutes)}) ou selecionar outro edifício.
                     </p>
                   </div>
                 ) : (
