@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import ISTMap, { BUILDING_NAMES } from '@/components/ISTMap';
+import InstallAppButton from '@/components/InstallAppButton';
 import roomsData from '@/lib/data/data.json';
 import { FenixClassSession } from '@/types/fenix';
 import {
@@ -504,6 +505,7 @@ export default function Home() {
                 Campus Alameda • IST Lisboa
               </p>
             </div>
+            <InstallAppButton />
           </div>
 
           {/* Mode Switch Tabs */}

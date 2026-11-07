@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#003870" />
+      <stop offset="50%" stop-color="#00529c" />
+      <stop offset="100%" stop-color="#0070d2" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+  
+  <!-- Blueprint Grid Pattern -->
+  <g stroke="rgba(255,255,255,0.08)" stroke-width="2">
+    <line x1="64" y1="0" x2="64" y2="512" />
+    <line x1="128" y1="0" x2="128" y2="512" />
+    <line x1="192" y1="0" x2="192" y2="512" />
+    <line x1="256" y1="0" x2="256" y2="512" />
+    <line x1="320" y1="0" x2="320" y2="512" />
+    <line x1="384" y1="0" x2="384" y2="512" />
+    <line x1="448" y1="0" x2="448" y2="512" />
+    <line x1="0" y1="64" x2="512" y2="64" />
+    <line x1="0" y1="128" x2="512" y2="128" />
+    <line x1="0" y1="192" x2="512" y2="192" />
+    <line x1="0" y1="256" x2="512" y2="256" />
+    <line x1="0" y1="320" x2="512" y2="320" />
+    <line x1="0" y1="384" x2="512" y2="384" />
+    <line x1="0" y1="448" x2="512" y2="448" />
+  </g>
+
+  <!-- Architectural Floor Plan Visual -->
+  <g filter="url(#shadow)">
+    <!-- Main Outer Blueprint Wall -->
+    <rect x="96" y="96" width="320" height="280" rx="20" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-width="10" stroke-linejoin="round" />
+    
+    <!-- Interior Partitions -->
+    <line x1="240" y1="96" x2="240" y2="240" stroke="#ffffff" stroke-width="8" />
+    <line x1="96" y1="240" x2="320" y2="240" stroke="#ffffff" stroke-width="8" />
+    <line x1="320" y1="170" x2="416" y2="170" stroke="#ffffff" stroke-width="8" />
+    <line x1="320" y1="240" x2="320" y2="376" stroke="#ffffff" stroke-width="8" />
+    
+    <!-- Active Green Room (Free Room Indicator) -->
+    <rect x="110" y="110" width="116" height="116" rx="14" fill="url(#accent)" fill-opacity="0.9" />
+    
+    <!-- Radar Pin in Free Room -->
+    <circle cx="168" cy="168" r="22" fill="#ffffff" />
+    <circle cx="168" cy="168" r="9" fill="#059669" />
+    
+    <!-- Doorway Arcs -->
+    <line x1="150" y1="240" x2="190" y2="240" stroke="#00529c" stroke-width="12" stroke-linecap="square" />
+    <path d="M 150 240 A 40 40 0 0 1 190 200" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="4" stroke-dasharray="6 4" />
+    
+    <line x1="240" y1="135" x2="240" y2="175" stroke="#00529c" stroke-width="12" stroke-linecap="square" />
+    <path d="M 240 135 A 40 40 0 0 1 280 175" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="4" stroke-dasharray="6 4" />
+  </g>
+
+  <!-- IST Monogram Badge -->
+  <g filter="url(#shadow)">
+    <rect x="136" y="320" width="240" height="56" rx="16" fill="#ffffff" />
+    <text x="256" y="358" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="900" fill="#00529c" text-anchor="middle" letter-spacing="4">IST SALAS</text>
+  </g>
+</svg>
