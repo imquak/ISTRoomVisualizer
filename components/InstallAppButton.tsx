@@ -12,10 +12,8 @@ export default function InstallAppButton() {
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [installedSuccessfully, setInstalledSuccessfully] = useState(false);
 
   useEffect(() => {
-    // Check if already running as installed PWA / standalone
     const isStandaloneMode =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as unknown as { standalone?: boolean }).standalone === true;
@@ -25,51 +23,41 @@ export default function InstallAppButton() {
       return;
     }
 
-    // Detect iOS
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIOSDevice =
+    setIsIOS(
       /iphone|ipad|ipod/.test(userAgent) ||
-      (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
+      (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1)
+    );
 
-    setIsIOS(isIOSDevice);
-
-    // Listen for Chrome / Android / Edge native install prompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     const handleAppInstalled = () => {
-      setInstalledSuccessfully(true);
       setDeferredPrompt(null);
       setIsStandalone(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
-  // Do not show button if already running as standalone app
-  if (isStandalone) {
-    return null;
-  }
+  if (isStandalone) return null;
 
-  const handleInstallClick = async () => {
+  const handleClick = async () => {
     if (deferredPrompt) {
-      // Android / Chrome / Edge native 1-click prompt
       await deferredPrompt.prompt();
       const choice = await deferredPrompt.userChoice;
       if (choice.outcome === 'accepted') {
-        setInstalledSuccessfully(true);
         setDeferredPrompt(null);
+        setIsStandalone(true);
       }
     } else {
-      // iOS Safari or browser without direct prompt API -> open modal with step-by-step instructions
       setIsModalOpen(true);
     }
   };
@@ -78,44 +66,26 @@ export default function InstallAppButton() {
     <>
       <button
         type="button"
-        onClick={handleInstallClick}
-        title="Instalar ou adicionar ao ecrã principal"
-        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95"
+        onClick={handleClick}
+        title="Adicionar ao ecrã inicial"
+        className="px-2.5 py-1 text-xs text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg transition-colors"
       >
-        <svg className="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-          />
-        </svg>
-        <span className="hidden sm:inline">Adicionar App</span>
+        <span className="hidden sm:inline">Instalar app</span>
         <span className="sm:hidden">App</span>
       </button>
 
-      {/* Instructional Modal (especially for iOS Safari & manual browser guidance) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 flex flex-col gap-4 text-slate-800">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-[#00529c] flex items-center justify-center shadow-md text-white font-black text-sm tracking-tighter">
-                  IST
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-base text-slate-900 leading-tight">
-                    Adicionar ao Ecrã
-                  </h3>
-                  <p className="text-xs text-slate-500">IST Room Visualizer</p>
-                </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl flex flex-col gap-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-bold text-base text-gray-900">Adicionar ao ecrã</h3>
+                <p className="text-xs text-gray-500">IST Salas</p>
               </div>
-
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+                className="text-gray-400 hover:text-gray-600 p-1"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -123,79 +93,29 @@ export default function InstallAppButton() {
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Instala no teu ecrã inicial para aceder instantaneamente como uma app nativa, em ecrã inteiro e sem a barra do browser.
+            <p className="text-xs text-gray-600">
+              Acede mais rápido adicionando ao ecrã inicial do telemóvel.
             </p>
 
-            {/* iOS Instructions */}
             {isIOS ? (
-              <div className="flex flex-col gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 text-xs text-slate-700">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-xl bg-blue-100 text-[#00529c] font-black flex items-center justify-center shrink-0">
-                    1
-                  </div>
-                  <div>
-                    No <strong>Safari</strong>, toca no botão de <strong>Partilhar</strong>{' '}
-                    <span className="inline-flex items-center justify-center w-5 h-5 bg-white border border-slate-300 rounded text-blue-600 align-middle">
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                      </svg>
-                    </span>{' '}
-                    na barra inferior.
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-xl bg-blue-100 text-[#00529c] font-black flex items-center justify-center shrink-0">
-                    2
-                  </div>
-                  <div>
-                    Desliza para baixo e seleciona{' '}
-                    <span className="font-semibold text-slate-900 inline-flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      &quot;Ecrã Principal&quot;
-                    </span>
-                    .
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-xl bg-blue-100 text-[#00529c] font-black flex items-center justify-center shrink-0">
-                    3
-                  </div>
-                  <div>
-                    Toca em <strong>&quot;Adicionar&quot;</strong> no canto superior direito.
-                  </div>
-                </div>
+              <div className="flex flex-col gap-2 text-xs text-gray-700">
+                <p><strong>1.</strong> Toca em Partilhar (ícone quadrado com seta) no Safari</p>
+                <p><strong>2.</strong> Escolhe &quot;Ecrã Principal&quot;</p>
+                <p><strong>3.</strong> Toca &quot;Adicionar&quot;</p>
               </div>
             ) : (
-              /* Android / Desktop fallback Instructions */
-              <div className="flex flex-col gap-2.5 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 text-xs text-slate-700">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-[11px] shrink-0">
-                    1
-                  </span>
-                  <span>Abre o menu do browser (três pontos <strong>⋮</strong> no topo/fundo).</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-[11px] shrink-0">
-                    2
-                  </span>
-                  <span>
-                    Escolhe <strong>&quot;Instalar aplicação&quot;</strong> ou <strong>&quot;Adicionar ao ecrã inicial&quot;</strong>.
-                  </span>
-                </div>
+              <div className="flex flex-col gap-2 text-xs text-gray-700">
+                <p><strong>1.</strong> Abre o menu do browser (⋮)</p>
+                <p><strong>2.</strong> Escolhe &quot;Instalar aplicação&quot; ou &quot;Adicionar ao ecrã&quot;</p>
               </div>
             )}
 
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="w-full py-2.5 bg-[#00529c] hover:bg-[#003d7a] text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+              className="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs font-medium text-gray-700 transition-colors"
             >
-              Entendido
+              OK
             </button>
           </div>
         </div>

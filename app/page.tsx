@@ -485,276 +485,175 @@ export default function Home() {
     : null;
 
   return (
-    <main className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 text-slate-900 overflow-hidden font-sans">
-      {/* ─────────────────────────────────────────────────────────────────────
-          SIDEBAR / MAIN PANEL
-      ───────────────────────────────────────────────────────────────────── */}
+    <main className="flex flex-col md:flex-row h-[100dvh] w-full bg-gray-50 text-gray-900 overflow-hidden font-sans">
+      {/* SIDEBAR */}
       <section
-        className={`w-full md:w-1/2 lg:w-5/12 xl:w-4/12 h-full bg-white shadow-md z-20 flex flex-col overflow-hidden border-r border-slate-200 transition-all ${
+        className={`w-full md:w-1/2 lg:w-5/12 xl:w-4/12 h-full bg-white z-20 flex flex-col overflow-hidden border-r border-gray-200 ${
           mobileTab === 'map' ? 'hidden md:flex' : 'flex'
         }`}
       >
-        {/* Header & Mode Switcher */}
-        <header className="p-3 md:p-5 border-b border-slate-200 bg-white shrink-0">
-          <div className="flex items-center justify-between mb-3">
+        <header className="px-4 py-3 md:px-5 md:py-4 border-b border-gray-200 bg-white shrink-0">
+          <div className="flex items-center justify-between mb-2.5">
             <div>
-              <h1 className="text-xl md:text-2xl font-black text-[#00529c] tracking-tight">
-                IST Room Visualizer
-              </h1>
-              <p className="text-[11px] md:text-xs text-slate-500 font-medium">
-                Campus Alameda • IST Lisboa
-              </p>
+              <h1 className="text-lg md:text-xl font-bold text-gray-900">IST Salas</h1>
+              <p className="text-xs text-gray-500">Campus Alameda</p>
             </div>
             <InstallAppButton />
           </div>
 
-          {/* Mode Switch Tabs */}
-          <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl gap-1 border border-slate-200">
+          <div className="flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
             <button
               type="button"
               onClick={() => setMode('normal')}
-              className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs md:text-sm font-bold transition-all ${
+              className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
                 mode === 'normal'
-                  ? 'bg-white text-[#00529c] shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <span>Explorar & Horário</span>
+              Explorar
             </button>
-
             <button
               type="button"
               onClick={() => setMode('finder')}
-              className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs md:text-sm font-bold transition-all ${
+              className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
                 mode === 'finder'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Salas Livres</span>
+              Salas Livres
             </button>
           </div>
         </header>
 
-        {/* ───────────────────────────────────────────────────────────────────
-            MODE 1: NORMAL MODE (Original Search + Horário)
-        ─────────────────────────────────────────────────────────────────── */}
+        {/* MODE 1: NORMAL */}
         {mode === 'normal' && (
-          <div className="flex-1 overflow-y-auto p-3 md:p-5 flex flex-col gap-4">
-            {/* Search Input */}
+          <div className="flex-1 overflow-y-auto p-3 md:p-4 flex flex-col gap-3">
             <div className="relative shrink-0">
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Pesquisa sala, ex: V1.12, QA02.4, PA1..."
-                  className="w-full p-3 pl-10 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00529c] focus:outline-none text-base bg-white shadow-sm"
+                  placeholder="Pesquisar sala..."
+                  className="w-full py-2 px-3 pl-9 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm bg-white"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
-                <svg
-                  className="w-5 h-5 text-slate-400 absolute left-3 top-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
+                <svg className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600"
-                  >
-                    ✕
-                  </button>
+                  <button onClick={() => setSearchQuery('')} className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 text-sm">✕</button>
                 )}
               </div>
 
               {searchResults.length > 0 && (
-                <ul className="absolute top-full left-0 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden max-h-[35vh] overflow-y-auto divide-y divide-slate-100">
+                <ul className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden max-h-[35vh] overflow-y-auto divide-y divide-gray-100">
                   {searchResults.map(room => (
                     <li
                       key={room.id}
                       onClick={() => handleSelectRoom(room)}
-                      className="px-4 py-3 hover:bg-blue-50/70 cursor-pointer transition-colors flex justify-between items-center"
+                      className="px-3 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
                     >
-                      <div>
-                        <p className="font-bold text-sm text-slate-800">{room.name}</p>
-                        <p className="text-xs text-slate-500">
-                          {room.buildingName} • Piso {room.floorName}
-                        </p>
-                      </div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-[#00529c] bg-blue-50 px-2 py-1 rounded">
-                        Ver
-                      </span>
+                      <p className="font-medium text-sm text-gray-900">{room.name}</p>
+                      <p className="text-xs text-gray-500">{room.buildingName} · Piso {room.floorName}</p>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
 
-            {/* Selected Room Card */}
             {selectedRoom && (
-              <div className="shrink-0 p-4 bg-gradient-to-br from-blue-50 to-indigo-50/40 border border-blue-200 rounded-2xl shadow-sm">
+              <div className="shrink-0 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="flex justify-between items-start gap-2">
-                  <div className="overflow-hidden">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h2 className="text-lg md:text-xl font-black text-[#00529c] truncate">
-                        {selectedRoom.name}
-                      </h2>
+                      <h2 className="text-base font-bold text-gray-900 truncate">{selectedRoom.name}</h2>
                       {selectedRoomStatus && (
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            selectedRoomStatus.status === 'FREE'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : selectedRoomStatus.status === 'CLOSING_SOON'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-rose-100 text-rose-800'
-                          }`}
-                        >
-                          {selectedRoomStatus.status === 'FREE' ? '● Livre' : '● Ocupada'}
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                          selectedRoomStatus.status === 'FREE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          {selectedRoomStatus.status === 'FREE' ? 'Livre' : 'Ocupada'}
                         </span>
                       )}
                     </div>
-                    <p className="text-slate-700 text-xs md:text-sm font-semibold mt-0.5">
-                      {selectedRoom.buildingName}
-                    </p>
-                    <p className="text-slate-500 text-xs">Piso {selectedRoom.floorName}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">{selectedRoom.buildingName} · Piso {selectedRoom.floorName}</p>
                   </div>
-
-                  <div className="flex flex-col gap-1.5 shrink-0">
-                    {blueprintUrl && (
-                      <button
-                        onClick={() => setIsBlueprintModalOpen(true)}
-                        className="flex items-center gap-1.5 px-3 py-2 bg-[#00529c] text-white rounded-xl shadow-sm hover:bg-[#003d7a] transition-all text-xs font-bold"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                          />
-                        </svg>
-                        <span>Planta</span>
-                      </button>
-                    )}
-                  </div>
+                  {blueprintUrl && (
+                    <button
+                      onClick={() => setIsBlueprintModalOpen(true)}
+                      className="px-3 py-1.5 bg-[#00529c] text-white rounded-lg text-xs font-medium hover:bg-[#003d7a] transition-colors shrink-0"
+                    >
+                      Planta
+                    </button>
+                  )}
                 </div>
 
-                {/* Live Room Status Details */}
                 {selectedRoomStatus?.currentEvent && (
-                  <div className="mt-3 pt-2.5 border-t border-blue-200/60 text-xs text-slate-700">
-                    <span className="font-bold text-rose-700">Aula em curso: </span>
+                  <p className="mt-2 pt-2 border-t border-blue-200 text-xs text-gray-600">
+                    <span className="font-medium text-red-600">Em aula:</span>{' '}
                     {selectedRoomStatus.currentEvent.courseAcron || selectedRoomStatus.currentEvent.title}
-                    <span className="text-slate-500 ml-1">
-                      (até {fmtTime(selectedRoomStatus.currentEvent.end)})
-                    </span>
-                  </div>
+                    <span className="text-gray-400 ml-1">(até {fmtTime(selectedRoomStatus.currentEvent.end)})</span>
+                  </p>
                 )}
                 {selectedRoomStatus?.nextEvent && selectedRoomStatus.status !== 'OCCUPIED' && (
-                  <div className="mt-1 text-xs text-amber-700">
-                    <span className="font-bold">Próxima aula: </span>
-                    {selectedRoomStatus.nextEvent.courseAcron || selectedRoomStatus.nextEvent.title}
-                    <span className="ml-1">às {fmtTime(selectedRoomStatus.nextEvent.start)}</span>
-                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Próxima: {selectedRoomStatus.nextEvent.courseAcron || selectedRoomStatus.nextEvent.title} às {fmtTime(selectedRoomStatus.nextEvent.start)}
+                  </p>
                 )}
               </div>
             )}
 
-            {/* Personal Schedule Section */}
-            <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden flex flex-col">
-              <div className="p-3.5 bg-slate-100/80 border-b border-slate-200 flex justify-between items-center">
-                <h3 className="font-bold text-sm text-slate-800 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#00529c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  O teu horário Fénix
-                </h3>
+            {/* Schedule */}
+            <div className="flex-1 border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+              <div className="px-3 py-2.5 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                <h3 className="font-medium text-sm text-gray-700">Horário Fénix</h3>
                 {isAuthenticated && (
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                    Sincronizado
-                  </span>
+                  <span className="text-[10px] text-green-600 font-medium">Sincronizado</span>
                 )}
               </div>
 
               <div className="flex-1 overflow-y-auto p-3">
                 {!isAuthenticated ? (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-[#00529c] mb-3">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                    <p className="text-slate-600 text-xs md:text-sm mb-4 max-w-xs">
-                      Inicia sessão com o Fénix para veres as tuas aulas e localizares as salas diretamente no mapa.
-                    </p>
+                    <p className="text-gray-500 text-sm mb-3">Faz login no Fénix para ver o teu horário.</p>
                     <button
                       onClick={handleFenixLogin}
-                      className="px-5 py-2.5 bg-[#00529c] text-white rounded-xl hover:bg-[#003d7a] transition-all text-xs font-bold shadow-md shadow-blue-900/10"
+                      className="px-4 py-2 bg-[#00529c] text-white rounded-lg text-sm font-medium hover:bg-[#003d7a] transition-colors"
                     >
-                      Login com o Fénix
+                      Login Fénix
                     </button>
                   </div>
                 ) : Object.keys(groupedSchedule).length > 0 ? (
                   <div className="flex flex-col gap-4">
                     {Object.entries(groupedSchedule).map(([date, sessions]) => (
                       <div key={date}>
-                        <h4 className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-2 pl-2 border-l-2 border-[#00529c]">
+                        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5 pl-2 border-l-2 border-[#00529c]">
                           {new Date(parseFenixDate(sessions[0].classPeriod.start)).toLocaleDateString('pt-PT', {
-                            weekday: 'long',
-                            day: 'numeric',
-                            month: 'short',
+                            weekday: 'long', day: 'numeric', month: 'short',
                           })}
                         </h4>
-
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1.5">
                           {sessions.map((session, i) => {
                             const startTime = session.classPeriod.start.split(' ')[1];
                             const endTime = session.classPeriod.end.split(' ')[1];
                             const roomName = session.location?.[0]?.name;
-
                             return (
                               <div
                                 key={i}
                                 onClick={() => handleScheduleClick(session)}
-                                className="flex bg-white rounded-xl shadow-sm border border-slate-200 cursor-pointer hover:border-[#00529c] hover:shadow-md transition-all group overflow-hidden"
+                                className="flex items-center bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-blue-300 transition-colors overflow-hidden"
                               >
-                                <div className="bg-slate-50 text-slate-600 font-mono text-[11px] p-2.5 flex flex-col items-center justify-center border-r border-slate-200 min-w-[62px]">
-                                  <span className="font-bold text-slate-800">{startTime}</span>
-                                  <span className="text-slate-300 leading-none">|</span>
-                                  <span>{endTime}</span>
+                                <div className="text-gray-500 font-mono text-[11px] py-2 px-2.5 border-r border-gray-200 min-w-[55px] text-center">
+                                  <div className="font-medium text-gray-700">{startTime}</div>
+                                  <div>{endTime}</div>
                                 </div>
-
-                                <div className="p-2.5 flex-1 overflow-hidden">
-                                  <div className="flex justify-between items-start mb-0.5">
-                                    <p className="font-bold text-xs text-slate-800 group-hover:text-[#00529c] transition-colors truncate pr-1">
-                                      {session.course.acronym}
-                                    </p>
-                                    {roomName && (
-                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-[#00529c] border border-blue-200 shrink-0">
-                                        {roomName}
-                                      </span>
-                                    )}
+                                <div className="py-2 px-2.5 flex-1 min-w-0">
+                                  <div className="flex justify-between items-center gap-1">
+                                    <span className="font-medium text-xs text-gray-800 truncate">{session.course.acronym}</span>
+                                    {roomName && <span className="text-[10px] text-[#00529c] font-medium shrink-0">{roomName}</span>}
                                   </div>
-                                  <p className="text-[11px] text-slate-600 line-clamp-1">
-                                    {session.title.split(' : ')[0]}
-                                  </p>
+                                  <p className="text-[11px] text-gray-500 truncate">{session.title.split(' : ')[0]}</p>
                                 </div>
                               </div>
                             );
@@ -764,292 +663,149 @@ export default function Home() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-500 text-center py-8">Nenhuma aula agendada encontrada.</p>
+                  <p className="text-xs text-gray-400 text-center py-8">Nenhuma aula agendada.</p>
                 )}
               </div>
             </div>
           </div>
         )}
 
-        {/* ───────────────────────────────────────────────────────────────────
-            MODE 2: EMPTY ROOM FINDER (Salas Livres)
-        ─────────────────────────────────────────────────────────────────── */}
+        {/* MODE 2: FINDER */}
         {mode === 'finder' && (
-          <div className="flex-1 overflow-y-auto p-3 md:p-5 flex flex-col gap-4">
-            {/* Active Building Banner */}
-            <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl">
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  Edifício Selecionado
-                </span>
-                {activeBuildingId && (
-                  <button
-                    onClick={() => setActiveBuildingId(null)}
-                    className="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 underline"
-                  >
-                    Ver todo o campus
-                  </button>
-                )}
-              </div>
-
-              {/* Building Dropdown / Quick Switcher */}
-              <div className="flex items-center gap-2">
-                <select
-                  value={activeBuildingId || ''}
-                  onChange={e => setActiveBuildingId(e.target.value || null)}
-                  className="w-full p-2 bg-white border border-emerald-300 rounded-xl text-xs md:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
-                >
-                  <option value="">Todos os edifícios do Campus Alameda</option>
-                  {availableBuildings.map(b => (
-                    <option key={b.id} value={b.id}>
-                      {b.name} ({b.count} salas)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <p className="text-[10px] text-emerald-700 mt-1.5">
-                Dica: Clica diretamente num edifício no mapa para filtrar instantaneamente.
-              </p>
+          <div className="flex-1 overflow-y-auto p-3 md:p-4 flex flex-col gap-3">
+            {/* Building selector */}
+            <div className="flex items-center gap-2">
+              <select
+                value={activeBuildingId || ''}
+                onChange={e => setActiveBuildingId(e.target.value || null)}
+                className="flex-1 py-2 px-2.5 bg-white border border-gray-300 rounded-lg text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Todos os edifícios</option>
+                {availableBuildings.map(b => (
+                  <option key={b.id} value={b.id}>{b.name} ({b.count})</option>
+                ))}
+              </select>
+              {activeBuildingId && (
+                <button onClick={() => setActiveBuildingId(null)} className="text-xs text-gray-500 hover:text-gray-700 shrink-0">Limpar</button>
+              )}
             </div>
 
-            {/* Time & Duration Selection Card */}
-            <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col gap-3">
-              {/* Header: Start time -> End time + Duration */}
+            {/* Time selection */}
+            <div className="p-3 bg-white border border-gray-200 rounded-lg flex flex-col gap-2.5">
               <div className="flex justify-between items-center">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-xs font-bold text-slate-700">Horário:</span>
-                  <span
-                    className="text-xs font-black font-mono text-[#00529c] bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200 shadow-2xs"
-                    title="Hora de início"
-                  >
-                    {formatMinutes(startMinutes)}
-                  </span>
-                  <span className="text-xs text-slate-400 font-bold">→</span>
-                  <span
-                    className="text-xs font-black font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 shadow-2xs"
-                    title="Hora de fim"
-                  >
-                    {formatMinutes(endMinutes)}
-                  </span>
-                  <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                    {formatDuration(endMinutes - startMinutes)}
-                  </span>
-                  {isLiveNow && (
-                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
-                      Agora
-                    </span>
-                  )}
+                <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                  <span className="font-mono font-medium">{formatMinutes(startMinutes)}</span>
+                  <span className="text-gray-400">–</span>
+                  <span className="font-mono font-medium">{formatMinutes(endMinutes)}</span>
+                  <span className="text-gray-400 ml-0.5">({formatDuration(endMinutes - startMinutes)})</span>
+                  {isLiveNow && <span className="text-green-600 text-[10px] font-medium">agora</span>}
                 </div>
-
                 <button
                   type="button"
                   onClick={handleSetNow}
-                  className="text-xs font-bold text-[#00529c] hover:bg-blue-50 px-2 py-1 rounded-lg border border-blue-200 transition-colors shrink-0"
+                  className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  Repor Agora
+                  Agora
                 </button>
               </div>
 
-              {/* Dual Range Slider (Start & End Handles with Green Duration Bar) */}
-              <div className="flex flex-col gap-1">
-                <div className="relative w-full h-8 flex items-center select-none my-0.5">
-                  {/* Background Track */}
-                  <div className="absolute left-0 right-0 h-2 bg-slate-200 rounded-full overflow-hidden pointer-events-none">
-                    {/* Green Bar representing the duration between start and end */}
-                    <div
-                      className="absolute top-0 bottom-0 bg-emerald-500 rounded-full pointer-events-none"
-                      style={{
-                        left: `${startPercent}%`,
-                        width: `${Math.max(0, endPercent - startPercent)}%`,
-                      }}
-                    />
-                  </div>
-
-                  {/* Start Handle (Blue) */}
-                  <input
-                    type="range"
-                    min={480}
-                    max={1260}
-                    step={5}
-                    value={startMinutes}
-                    onMouseDown={() => setActiveThumb('start')}
-                    onTouchStart={() => setActiveThumb('start')}
-                    onChange={e => {
-                      const val = Number(e.target.value);
-                      setStartMinutes(Math.min(val, endMinutes - 5));
-                      setIsLiveNow(false);
+              {/* Dual slider */}
+              <div className="relative w-full h-7 flex items-center select-none">
+                <div className="absolute left-0 right-0 h-1.5 bg-gray-200 rounded-full pointer-events-none">
+                  <div
+                    className="absolute top-0 bottom-0 bg-blue-400 rounded-full pointer-events-none"
+                    style={{
+                      left: `${startPercent}%`,
+                      width: `${Math.max(0, endPercent - startPercent)}%`,
                     }}
-                    aria-label="Hora de Início"
-                    className={`range-thumb-start absolute w-full h-8 appearance-none bg-transparent pointer-events-none ${
-                      activeThumb === 'start' ? 'z-30' : 'z-20'
-                    }`}
-                  />
-
-                  {/* End Handle (Emerald Green) */}
-                  <input
-                    type="range"
-                    min={480}
-                    max={1260}
-                    step={5}
-                    value={endMinutes}
-                    onMouseDown={() => setActiveThumb('end')}
-                    onTouchStart={() => setActiveThumb('end')}
-                    onChange={e => {
-                      const val = Number(e.target.value);
-                      setEndMinutes(Math.max(val, startMinutes + 5));
-                      setIsLiveNow(false);
-                    }}
-                    aria-label="Hora de Fim"
-                    className={`range-thumb-end absolute w-full h-8 appearance-none bg-transparent pointer-events-none ${
-                      activeThumb === 'end' ? 'z-30' : 'z-20'
-                    }`}
                   />
                 </div>
-
-                {/* Timeline scale and markers */}
-                <div className="flex justify-between text-[10px] font-semibold text-slate-400 px-0.5">
-                  <span>08:00</span>
-                  <span>11:00</span>
-                  <span>14:00</span>
-                  <span>17:00</span>
-                  <span>21:00</span>
-                </div>
-
-                {/* Helper legend */}
-                <div className="flex items-center justify-between text-[10px] text-slate-500 mt-0.5 pt-1 border-t border-slate-100">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#00529c] inline-block shadow-2xs" />
-                    <span className="font-medium">Início: {formatMinutes(startMinutes)}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block shadow-2xs" />
-                    <span className="font-medium">Fim: {formatMinutes(endMinutes)}</span>
-                  </div>
-                </div>
+                <input
+                  type="range" min={480} max={1260} step={5} value={startMinutes}
+                  onMouseDown={() => setActiveThumb('start')}
+                  onTouchStart={() => setActiveThumb('start')}
+                  onChange={e => { setStartMinutes(Math.min(Number(e.target.value), endMinutes - 5)); setIsLiveNow(false); }}
+                  aria-label="Início"
+                  className={`range-thumb-start absolute w-full h-7 appearance-none bg-transparent pointer-events-none ${activeThumb === 'start' ? 'z-30' : 'z-20'}`}
+                />
+                <input
+                  type="range" min={480} max={1260} step={5} value={endMinutes}
+                  onMouseDown={() => setActiveThumb('end')}
+                  onTouchStart={() => setActiveThumb('end')}
+                  onChange={e => { setEndMinutes(Math.max(Number(e.target.value), startMinutes + 5)); setIsLiveNow(false); }}
+                  aria-label="Fim"
+                  className={`range-thumb-end absolute w-full h-7 appearance-none bg-transparent pointer-events-none ${activeThumb === 'end' ? 'z-30' : 'z-20'}`}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] text-gray-400">
+                <span>08:00</span><span>11:00</span><span>14:00</span><span>17:00</span><span>21:00</span>
               </div>
             </div>
 
-            {/* Filter within free rooms search bar */}
+            {/* Search */}
             <div className="relative">
               <input
                 type="text"
-                placeholder="Filtrar nesta lista (ex: piso, sala)..."
+                placeholder="Filtrar salas..."
                 value={finderFilterQuery}
                 onChange={e => setFinderFilterQuery(e.target.value)}
-                className="w-full px-3 py-2 pl-9 text-xs bg-white border border-slate-200 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                className="w-full py-2 px-3 pl-8 text-xs bg-white border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:outline-none"
               />
-              <svg
-                className="w-4 h-4 text-slate-400 absolute left-3 top-2.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
 
-            {/* Free Rooms List */}
-            <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden flex flex-col min-h-[300px]">
-              <div className="p-3 bg-slate-100/90 border-b border-slate-200 flex justify-between items-center">
-                <span className="text-xs font-bold text-slate-700">
-                  Salas encontradas ({displayedFinderRooms.length})
-                </span>
-                {activeBuildingName && (
-                  <span className="text-[11px] font-semibold text-emerald-800 truncate max-w-[180px]">
-                    {activeBuildingName}
-                  </span>
-                )}
+            {/* Results */}
+            <div className="flex-1 border border-gray-200 rounded-lg overflow-hidden flex flex-col min-h-[300px]">
+              <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                <span className="text-xs text-gray-600">{displayedFinderRooms.length} salas livres</span>
+                {activeBuildingName && <span className="text-xs text-gray-500 truncate max-w-[160px]">{activeBuildingName}</span>}
               </div>
 
-              <div className="flex-1 overflow-y-auto p-2.5 divide-y divide-slate-100">
+              <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
                 {freeRoomsLoading ? (
-                  <div className="flex flex-col items-center justify-center p-8 text-center text-slate-500 gap-2">
-                    <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-                    <p className="text-xs">A calcular disponibilidade em tempo real...</p>
+                  <div className="flex items-center justify-center p-8 text-gray-400 gap-2">
+                    <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-xs">A carregar...</span>
                   </div>
                 ) : displayedFinderRooms.length === 0 ? (
-                  <div className="text-center p-8 text-slate-500">
-                    <p className="font-semibold text-sm text-slate-700 mb-1">Nenhuma sala livre encontrada</p>
-                    <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                      Tenta ajustar a duração ({formatDuration(durationMinutes)}), alterar o horário ({formatMinutes(startMinutes)}) ou selecionar outro edifício.
-                    </p>
+                  <div className="text-center p-8">
+                    <p className="text-sm text-gray-600 mb-1">Nenhuma sala livre</p>
+                    <p className="text-xs text-gray-400">Experimenta outro horário ou edifício.</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2">
-                    {displayedFinderRooms.map(item => {
-                      const isSelected = selectedRoom?.id === item.id;
-                      const itemBlueprintUrl =
-                        item.roomObj?.roomBlueprintUrl ||
-                        item.roomObj?.floorBlueprintUrl ||
-                        item.rawStatus?.blueprintUrl;
-
-                      return (
-                        <div
-                          key={item.id}
-                          onClick={() => handleSelectFreeRoomItem(item)}
-                          className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                            isSelected
-                              ? 'bg-blue-50 border-[#00529c] shadow-sm'
-                              : 'bg-white border-slate-200 hover:border-emerald-400 hover:shadow-xs'
-                          }`}
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="font-black text-sm md:text-base text-slate-800 truncate">
-                                {item.name}
-                              </p>
-                            </div>
-                            <p className="text-xs text-slate-500 truncate mt-0.5">
-                              {item.buildingName} • Piso {item.floorName}
-                            </p>
-
-                            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 shrink-0">
-                                {formatDurationHours(item.durationMinutes)}
-                              </span>
-                              {item.nextEventText && (
-                                <span className="text-[10px] text-amber-700 truncate max-w-[200px]">
-                                  {item.nextEventText}
-                                </span>
-                              )}
-                            </div>
+                  displayedFinderRooms.map(item => {
+                    const isSelected = selectedRoom?.id === item.id;
+                    const itemBlueprintUrl = item.roomObj?.roomBlueprintUrl || item.roomObj?.floorBlueprintUrl || item.rawStatus?.blueprintUrl;
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => handleSelectFreeRoomItem(item)}
+                        className={`px-3 py-2.5 cursor-pointer flex items-center justify-between gap-2 transition-colors ${
+                          isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm text-gray-900 truncate">{item.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{item.buildingName} · Piso {item.floorName}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] text-green-700 font-medium">{formatDurationHours(item.durationMinutes)}</span>
+                            {item.nextEventText && <span className="text-[10px] text-gray-400 truncate">{item.nextEventText}</span>}
                           </div>
-
-                          {/* Blueprint button on each room like in the other tab */}
-                          {itemBlueprintUrl && (
-                            <button
-                              type="button"
-                              onClick={e => {
-                                e.stopPropagation();
-                                handleSelectFreeRoomItem(item);
-                                setIsBlueprintModalOpen(true);
-                              }}
-                              className="flex items-center gap-1.5 px-3 py-2 bg-[#00529c] text-white hover:bg-[#003d7a] rounded-xl text-xs font-bold shadow-sm transition-all shrink-0"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                                />
-                              </svg>
-                              <span>Planta</span>
-                            </button>
-                          )}
                         </div>
-                      );
-                    })}
-                  </div>
+                        {itemBlueprintUrl && (
+                          <button
+                            type="button"
+                            onClick={e => { e.stopPropagation(); handleSelectFreeRoomItem(item); setIsBlueprintModalOpen(true); }}
+                            className="px-2.5 py-1.5 bg-[#00529c] text-white rounded-lg text-xs font-medium hover:bg-[#003d7a] transition-colors shrink-0"
+                          >
+                            Planta
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -1057,129 +813,86 @@ export default function Home() {
         )}
       </section>
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          MAP PANEL (Interactive Campus Map)
-      ───────────────────────────────────────────────────────────────────── */}
+      {/* MAP */}
       <section
-        className={`w-full md:w-1/2 lg:w-7/12 xl:w-8/12 h-full bg-slate-100 relative z-10 flex flex-col transition-all ${
+        className={`w-full md:w-1/2 lg:w-7/12 xl:w-8/12 h-full bg-gray-100 relative z-10 flex flex-col ${
           mobileTab === 'list' ? 'hidden md:flex' : 'flex'
         }`}
       >
-        {/* Top Control Bar on Map */}
         <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
           {activeBuildingId && (
             <button
               onClick={() => setActiveBuildingId(null)}
-              className="px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-300 text-slate-700 hover:bg-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1"
+              className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-medium shadow-sm transition-colors"
             >
-              <span>✕ Limpar Seleção</span>
+              ✕ Limpar
             </button>
           )}
-
-          {/* Quick instructions pill on desktop */}
-          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200 text-slate-600 rounded-xl text-xs shadow-sm font-medium">
-            <svg className="w-4 h-4 text-[#00529c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-            </svg>
-            <span>Clica num edifício no mapa</span>
-          </div>
         </div>
 
-        {/* Map Container */}
         <div className="w-full h-full flex items-center justify-center p-2 md:p-6 overflow-hidden">
-          <ISTMap
-            activeBuildingId={activeBuildingId}
-            onSelectBuilding={handleMapBuildingClick}
-            interactive={true}
-          />
+          <ISTMap activeBuildingId={activeBuildingId} onSelectBuilding={handleMapBuildingClick} interactive={true} />
         </div>
 
-        {/* Floating Building Card on Mobile Map View */}
         {activeBuildingName && (
-          <div className="md:hidden absolute bottom-16 left-3 right-3 z-30 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-xl border border-slate-200 flex justify-between items-center">
+          <div className="md:hidden absolute bottom-16 left-3 right-3 z-30 bg-white/95 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-gray-200 flex justify-between items-center">
             <div>
-              <p className="text-[10px] uppercase font-bold text-slate-400">Edifício Selecionado</p>
-              <h4 className="font-black text-sm text-slate-800">{activeBuildingName}</h4>
+              <p className="text-[10px] text-gray-400 uppercase font-medium">Edifício</p>
+              <p className="font-medium text-sm text-gray-800">{activeBuildingName}</p>
             </div>
-            <button
-              onClick={() => setMobileTab('list')}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-sm"
-            >
-              Ver Salas Livres
+            <button onClick={() => setMobileTab('list')} className="px-3 py-1.5 bg-[#00529c] text-white rounded-lg text-xs font-medium">
+              Ver Salas
             </button>
           </div>
         )}
       </section>
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          MOBILE BOTTOM NAVIGATION (Sticky on small screens)
-      ───────────────────────────────────────────────────────────────────── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2 flex items-center justify-around shadow-lg">
+      {/* MOBILE NAV */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 px-4 py-2 flex items-center justify-around">
         <button
           onClick={() => setMobileTab('list')}
-          className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl text-xs font-bold transition-all ${
-            mobileTab === 'list' ? 'text-[#00529c]' : 'text-slate-400 hover:text-slate-600'
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 text-xs font-medium ${
+            mobileTab === 'list' ? 'text-[#00529c]' : 'text-gray-400'
           }`}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
-          <span>{mode === 'finder' ? 'Salas Livres' : 'Pesquisa & Horário'}</span>
+          <span>{mode === 'finder' ? 'Salas' : 'Lista'}</span>
         </button>
-
         <button
           onClick={() => setMobileTab('map')}
-          className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl text-xs font-bold transition-all ${
-            mobileTab === 'map' ? 'text-[#00529c]' : 'text-slate-400 hover:text-slate-600'
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 text-xs font-medium ${
+            mobileTab === 'map' ? 'text-[#00529c]' : 'text-gray-400'
           }`}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
           </svg>
-          <span>Mapa {activeBuildingId ? '●' : ''}</span>
+          <span>Mapa</span>
         </button>
       </nav>
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          BLUEPRINT MODAL (High-Resolution Zoomable Floor/Room View)
-      ───────────────────────────────────────────────────────────────────── */}
+      {/* BLUEPRINT MODAL */}
       {isBlueprintModalOpen && blueprintUrl && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-2 md:p-10">
-          <div className="bg-white w-full h-full md:max-w-6xl md:h-[88vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative border border-slate-700/20">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center px-4 md:px-6 py-3 md:py-4 border-b border-slate-200 bg-slate-50 shrink-0">
-              <div className="overflow-hidden pr-4">
-                <h3 className="text-base md:text-xl font-black text-slate-800 truncate">
-                  {selectedRoom?.name}
-                </h3>
-                <p className="text-xs md:text-sm text-slate-500 truncate">
-                  {selectedRoom?.buildingName} • Piso {selectedRoom?.floorName}
-                </p>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-2 md:p-8">
+          <div className="bg-white w-full h-full md:max-w-5xl md:h-[85vh] rounded-xl shadow-xl flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 shrink-0">
+              <div className="min-w-0">
+                <h3 className="font-bold text-base text-gray-900 truncate">{selectedRoom?.name}</h3>
+                <p className="text-xs text-gray-500 truncate">{selectedRoom?.buildingName} · Piso {selectedRoom?.floorName}</p>
               </div>
-
               <button
                 onClick={() => setIsBlueprintModalOpen(false)}
-                className="p-2 rounded-xl hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors shrink-0"
-                aria-label="Fechar"
+                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors shrink-0"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-
-            {/* Modal Blueprint Image */}
-            <div className="flex-1 bg-slate-200 p-2 md:p-6 flex items-center justify-center overflow-hidden">
-              <img
-                src={blueprintUrl}
-                alt={`${selectedRoom?.name}`}
-                className="w-full h-full object-contain bg-white shadow-md rounded-xl select-none"
-              />
+            <div className="flex-1 bg-gray-100 p-2 md:p-4 flex items-center justify-center overflow-hidden">
+              <img src={blueprintUrl} alt={selectedRoom?.name || ''} className="max-w-full max-h-full object-contain bg-white rounded-lg select-none" />
             </div>
           </div>
         </div>
