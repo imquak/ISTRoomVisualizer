@@ -25,6 +25,9 @@ export const metadata: Metadata = {
     icon: "/icon-192.png",
     apple: "/apple-touch-icon.png",
   },
+  verification: {
+    google: "4FzhbLxkk0dBMnYcTPuu4OstzcJGEHVCH7cCLWJ1Re4",
+  },
 };
 
 export const viewport: Viewport = {
